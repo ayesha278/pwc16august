@@ -1,0 +1,1028 @@
+
+
+
+
+#Ayesha
+
+1. API server (Master node): It's a server, which helps us to validtes and configures data for api objects which includes pods and services.
+2.Schedular: Kube-scheduler is the default schedular for kubernates. Kube-scheduler is designed in a such way that you can write our own scheduling components.
+3. Controller: Basic meaning of controller is control loop means non-terminating loop. 
+   In kubernates, controller are control loops that watches the state of cluster then make or request changes where needed.
+4.Docker: Docker is open-source platfrom for developing, Shipping and application.
+          In kubernets, pods
+5. etcd: Objects are stored on etcd and it's the backup plan for all cluster data.
+6.Kubelet (node) : It's a primary "node agent" that run on each node. Hostname is used to register the nodes.
+
+
+
+
+
+
+
+
+#IMRAN
+APi server : Master node
+	     It looks after request info , Scaling ,authentication,authorization
+Docker : Docker - Containers
+	 Kubernetes - Pods 
+Scheduler :  Watches for newly created Pods with no assigned node
+	     Selects a node for them to run on.
+Controller : State of your cluster, then make or request changes where needed
+	     Each controller is a separate process
+	     Node,job,service,
+Kublet : Node component
+	 It makes sure that containers are running in a Pod.
+etcd : 	All Kubernetes objects are stored on etcd
+	Backing store for all cluster data
+
+
+
+
+
+-----------------------------------------------------------------------------------------------
+installing kind
+------------------------------------------------------------------------------------------------
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+
+chmod +x ./kind
+
+sudo mv ./kind /usr/local/bin/kind
+-------------------------------------------------------------------------------------------------
+
+
+installing kubectl
+---------------------------------------------------------------------------------------------------------
+
+curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+
+
+chmod +x ./kubectl
+
+sudo mv ./kubectl /usr/local/bin/kubectl
+-------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------
+config file
+-----------------------------------------------------------------
+mkdir setup
+cd setup/
+vi config (save the below code)
+# three node (two workers) cluster config
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+--------------------------------------------------------
+kind create cluster --config config
+kubectl get nodes
+---------------------------------------------------
+kind create cluster --config config 
+ 1208  kubectl get nodes
+ 1209  kubectl api-resources
+ 1210  kubectl get pods
+ 1211  kubectl get namespaces
+ 1212  kubectl get pods -n kube-system
+ 1213  kubectl get pods -n kube-system -o wide
+----------------------------------------------------------------
+alias k=kubectl
+ 1216  k get nodes
+ 1217  k api-resources
+ 1218  k get no
+ 1219  k get po
+ 1220  k run nginx --image=nginx 
+ 1221  k get po
+ 1222  k get po -o wide
+ 1223  k describe po nginx
+ 1224  k  get no
+ 1225  k describe no kind-worker
+ 1226  k describe no kind-worker2
+ 1227  k describe no kind-control-plane
+ 1228  k  get po
+ 1229  k  get po -o wide
+ 1230  k describe po nginx
+ 1231  k get po
+ 1232  k delete  po nginx
+ 1233  k get po
+ 1234  k create deployment mydeploy --image=nginx
+ 1235  k get all
+ 1236  k get po
+ 1237  k get rs
+ 1238* k get deploy 
+ 1239  k get all -o wide
+ 1240  k get po
+ 1241  k delete po mydeploy-7dff945675-c7fq6
+ 1242  k get po
+ 1243  k get po -o wide
+ 1244  history 
+------------------------------------------------------
+ mkdir yaml
+ 1289  cd yaml/
+ 1290  vi test.yaml
+ 1291  cd yaml/
+ 1292  alias k=kubectl
+ 1293  k run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
+ 1294  vi pod.yaml 
+ 1295  k edit po mydeploy-7dff945675-jrwbv 
+ 1296  vi pod.yaml 
+ 1297  k explain po
+ 1298  k explain po.metadata
+ 1299  vi pod.yaml 
+ 1300  k explain po.spec.containers
+ 1301  k explain po.spec.containers.envFrom
+--------------------------------------------------------------
+alias k=kubectl
+ 1305  k get all
+ 1306  k scale deploy mydeploy --replicas=5
+ 1307  k get po
+ 1308  k scale deploy mydeploy --replicas=10
+ 1309  k get po
+ 1310  k get po -o wide
+ 1311  k scale deploy mydeploy --replicas=2
+ 1312  k get po -o wide
+------------------------------------------------------
+ 1313  k edit deploy mydeploy 
+ 1314  k get po
+ 1315  k edit deploy mydeploy 
+ 1316  k get po
+ 1317  cd yaml/
+ 1318  k delete deploy mydeploy
+ 1319  k get all
+----------------------------------------------------------------
+ 1320  k create deploy nginx --image=nginx --dry-run=client -o yaml > nginx.yaml
+ 1321  vi nginx.yaml 
+ 1322  k apply -f nginx.yaml 
+ 1323  k get all
+ 1324  vi nginx.yaml 
+ 1325  k apply -f nginx.yaml 
+ 1326  k get po
+ -------------------------------------------------------
+ 1328  k get po
+ 1329  k scale deploy mydeploy --replicas=2
+ 1330  k scale deploy nginx --replicas=2
+-----------------------------------------------------------------
+ 1331  k get po
+ 1332  k autoscale deploy nginx --min=2 --max=20 --cpu-percent=80
+ 1333  k get hpa
+ 1334  k get all
+-------------------------------------------
+Create a deployment called webapp with image nginx with 5 replicas
+Get the deployment you just created with labels
+Output the yaml file of the deployment you just created
+Get the pods of this deployment
+Scale the deployment from 5 replicas to 20 replicas and verify
+----------------------------------------------------------------------
+1338  alias k=kubectl
+ 1339  k get all
+ 1340  k rollout history deploy nginx
+ 1341  k rollout history deploy nginx --revision=1
+ 1342  k get all
+ 1343  k delete hpa nginx 
+ 1356  k get po
+ 1357  k describe po nginx-5d9fb58d8-29wmw
+ 1358  k rollout history deploy nginx
+ 1359  k set image deploy nginx nginx=nginx:1.7.9 --record
+ 1360  k get po
+ 1361  k rollout status deploy nginx
+ 1362  k rollout history deploy nginx
+ 1363  k get all
+ 1364  k rollout history deploy nginx
+ 1365  k rollout status deploy nginx
+ 1366  k rollout undo deploy nginx
+ 1367  k rollout history deploy nginx
+ 1368  k get po
+ 1369  k describe po nginx-5d9fb58d8-xw5nj
+------------------------------------------------------------------------------
+
+ k run nginx1 --image=nginx 
+ 1415  k run nginx2 --image=nginx 
+ 1416  k get po
+ 1417  k get po --show-lables
+ 1418  k get po --show-labels
+ 1419  k edit po nginx1
+ 1420  k get po --show-labels
+ 1421  k edit po nginx2
+ 1422  k get po --show-labels
+ 1423  k label po nginx1 app=test1
+ 1424  k label po nginx1 app1=test1
+ 1425  k get po --show-labels
+ 1426  k label po nginx1 app1-
+ 1427  k get po --show-labels
+ 1428  k label po nginx1 app1=test1
+ 1429  k get po --show-labels
+ 1430  k run nginx3 --image=nginx
+ 1431  k run nginx4 --image=nginx
+ 1432  k get po
+ 1433  k get po -l app
+ 1434  k get po
+ 1435  k get po -l app
+ 1436  k get po -l run
+ 1437  vi pod.yaml 
+ 1438  k apply -f pod.yaml 
+ 1439  k get po
+ 1440  k get po -l app
+ 
+ 
+ k get po -l app=customapp
+ 1442  vi pod.yaml 
+ 1443  k delete po mypod
+ 1444  k apply -f pod.yaml 
+ 1445  k get po
+ 1446  k describe po mypod
+ 1447  k annotate po mypod customannotation= This is test annotation
+ 1448  k annotate po mypod customannotation=This is test annotation
+ 1449  k annotate po mypod customannotation='This is test annotation'
+ 1450  k describe po mypod
+ 1451  k annotate po mypod customannotation-
+ 1452  k describe po mypod
+---------------------------------------------------
+ 
+- Get the pods with label information
+- Create 5 nginx pods in which two of them is labeled env=prod and three of them is labeled env=dev
+- Verify all the pods are created with correct labels
+- Get the pods with label env=dev
+- Get the pods with label env=dev and also output the labels
+- Get the pods with label env=prod
+- Get the pods with label env=prod and also output the labels
+- Get the pods with label env
+- Get the pods with labels env=dev and env=prod
+- Get the pods with labels env=dev and env=prod and output the labels as well
+- Change the label for one of the pod to env=uat and list all the pods to verify
+- Remove the labels for the pods that we created now and verify all the labels are removed
+- Let’s add the label app=nginx for all the pods and verify
+- Annotate the pods with name=webapp
+- Verify the pods that have been annotated correctly
+- Remove the annotations on the pods and verify
+- Remove all the pods that we created so far
+---------------------------------------------------------------------------
+service example
+------------------------------------
+
+1455  git clone https://github.com/rskTech/serviceDemo.git
+ 1456  cd serviceDemo/
+ 1457  ls
+ 1458  ll
+ 1459  cd build/
+ 1460  ls
+ 1461  vi app.py 
+ 1462  ll
+ 1463  cd ..
+ 1464  cd deploy/
+ 1465  ls
+ 1466  vi db-pod.yml 
+ 1467  vi db-svc.yml 
+ 1470  vi web-pod.yaml 
+ 1471  vi web-svc.yml 
+ 1472  alias k=kubectl
+ 1484  k get no
+ 1485  k apply -f db-pod.yml 
+ 1486  k get po
+ 1487  k apply -f db-svc.yml 
+ 1488  k get all
+ 1489  k apply -f web-pod.yaml 
+ 1490  k get po
+ 1491  k apply -f web-svc.yml 
+ 1492  k get all
+ 1493  k get no -o wide
+ 1494  curl 172.18.0.2:31869/init
+ 1495  curl -i -H "Content-Type: application/json" -X POST -d '{"uid": "1", "user":"John Doe"}' http://172.18.0.2:31869/users/add
+ 1496  curl -i -H "Content-Type: application/json" -X POST -d '{"uid": "2", "user":"Rajendra"}' http://172.18.0.2:31869/users/add
+ 1497  curl -i -H "Content-Type: application/json" -X POST -d '{"uid": "3", "user":"RSK"}' http://172.18.0.2:31869/users/add
+ 1498  curl http://172.18.0.2:31869/users/1
+ 1499  curl http://172.18.0.2:31869/users/2
+ ------------------------------------------------------------------
+ingress contoller
+--------------------------------------------------------------------
+git clone https://github.com/rskTech/k8s_material.git
+ 1513  cd k8s_material/ingress/
+ 1514  ls
+ 1515  k apply -f deploy.yaml 
+ 1516  vi deploy.yaml 
+ 1517  k get po
+ 1518  k get ns
+ 1519  k get po -n ingress-nginx
+ 1520  kubectl create deployment web --image=gcr.io/google-samples/hello-app:1.0
+ 1521  k get all
+ 1522  k get po
+ 1523  kubectl expose deployment web --type=NodePort --port=8080
+ 1524  k get all
+ 1525  curl http://172.18.0.2:31017
+ 1526  kubectl create deployment web2 --image=gcr.io/google-samples/hello-app:2.0
+ 1527  kubectl expose deployment web2 --port=8080 --type=NodePort
+ 1528  k get all
+ 1529  curl http://172.18.0.2:31221
+ 1530  vi ingress.yaml 
+ 1531  k apply -f ingress.yaml 
+ 1532  k get ingress
+ 1533  vi /etc/hosts
+ 1534  curl hello-world.info
+ 1535  curl hello-world.info/v1
+ 1536  curl hello-world.info/v2
+ 1537  historycd 
+--------------------------------------------
+assignment
+--------------
+ Create a deployment called webapp with image nginx with 5 replicas
+59. Get the deployment you just created with labels
+60. Output the yaml file of the deployment you just created
+61. Get the pods of this deployment
+62. Scale the deployment from 5 replicas to 20 replicas and verify
+64. Get the replicaset that created with this deployment
+65. Get the yaml of the replicaset and pods of this deployment
+66. Delete the deployment you just created and watch all the pods are also being deleted
+-----------------------------------------------------------------------------------
+mkdir volume
+ 1550  cd vol
+ 1551  cd volume/
+ 1552  vi pv.yaml
+ 1553  k get pv
+ 1554  k apply -f pv.yaml 
+ 1555  k get pv
+ 1556  vi pvc.yaml
+ 1557  vi pv.yaml
+ 1558  vi pvc.yaml
+ 1559  k get pv
+ 1560  k apply -f pvc.yaml 
+ 1561  vi pvc.yaml
+ 1562  cd volume/
+ 1563  vi pvc.yaml 
+ 1564  rm .pvc.yaml.swp
+ 1565  vi pvc.yaml 
+ 1566  alias k=kubectl
+ 1567  k apply -f pvc.yaml 
+ 1568  sudo -s
+ 1569  cd volume/
+ 1570  alias k=kubectl
+ 1571  k get pv
+ 1572  k get pvc
+ 1573  sudo -s
+ 1574  alias k=kubectl
+ 1575  k get pv
+ 1576  k get pvc
+ 1577  alias k=kubectl
+ 1578  k get pv
+ 1579  k get pvc
+ 1580  cd volume/
+ 1581  k run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
+ 1582  vi pod.yaml 
+ 1583  k apply -f pod.yaml 
+ 1584  k get po
+ 1585  k exec -it nginx bash
+ 1586  k get po
+ 1587  k delete po nginx
+ 1588  k get po
+ 1589  ls
+ 1590  k apply -f pod.yaml 
+ 1591  k get po
+ 1592  k exec -it nginx bash
+ 1593  k get po -o wide
+ 1594  k get no
+ 1595  docker ps
+ 1596  docker exec -it kind-worker bash
+---------------------------------------------------------------------------
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: mypv
+spec:
+   storageClassName: fast
+   accessModes:
+     - ReadWriteMany
+   capacity:
+     storage: 2G
+   hostPath:
+     path: /opt
+-------------------------------------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mypvc
+spec:
+  storageClassName: fast
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 
+-----------------------------------------------------------------------------
+- List Persistent Volumes in the cluster
+- Create a hostPath PersistentVolume named task-pv-volume with storage 10Gi, access modes ReadWriteOnce, storageClassName manual, and volume at /mnt/data and verify
+- Create a PersistentVolumeClaim of at least 3Gi storage and access mode ReadWriteOnce and verify status is Bound
+- Delete persistent volume and PersistentVolumeClaim we just created
+--------------------------------------------------------------------------
+cd k8s_material/
+ 1609  cd statefulset/
+ 1610  ls
+ 1611  vi sc.yaml 
+ 1612  k get sc
+ 1613  k apply -f sc.yaml 
+ 1614  vi sfs.yaml 
+ 1615  k get sts
+ 1616  k apply -f sfs.yaml 
+ 1617  k get sts
+ 1618  k get po
+ 1619  k describe po web-0
+ 1620  k get pvc
+ 1621  k get pv
+ 1622  vi pv.yaml 
+ 1623  k apply -f pv.yaml 
+ 1624  k get pv
+ 1625  k get pvc
+ 1626  k get pv
+ 1627  k get po
+ 1628  k get pvc
+ 1629  vi pv1.yaml 
+ 1630  k apply pv1.yaml 
+ 1631  k apply -f pv1.yaml 
+ 1632  k get pv
+ 1633  k get pvc
+ 1634  k get po
+ 1635  vi pv2.yaml 
+ 1636  k apply -f pv2.yaml 
+ 1637  k get pv
+ 1638  k get pvc
+ 1639  k get po
+ 1640  k scale sts web --replicas=5
+-------------------------------------------------------
+ k scale sts web --replicas=2
+ 1650  k get po
+ 1651  k get pvc
+ 1652  k get pv
+ 1653  k get po
+ 1654  k delete po web-0
+ 1655  k get po
+ 1656  k scale sts web --replicas=4
+ 1657  k get po
+ 1658  history 
+ 1659  alias k=kubectl
+ 1660  k get all
+ 1661  k get pvc
+ 1662  k delete pvc www-web-{0,1,2,3,4}
+ 1663  k get pv
+ 1664  k delete pv mypv{ , 1,2,3}
+ 1665  k delete pv mypv{1,2,3}
+ 1666  k delete pv mypv
+ 1667  k get pv
+ 1668  k get all
+ 1669  k gte po
+ 1670  k gte pv
+ 1671  k get pv
+ 1672  vi ds.yaml
+ 1673  k get po -n kube-system
+ 1674  k get po -n kube-system -o wide
+ 1675  k get ds -n kube-system
+ 1676  vi ds.yaml 
+ 1677  k apply -f ds.yaml 
+ 1678  k get ds
+ 1679  k get po
+ 1680  k get po -o wide
+ 1681  history 
+---------------------------------------------------------
+k create cm mycm --from-literal=host=localhost --from-literal=dbname=emp
+ 1733  k create cm mycm1 --from-file=myconfig.ini
+ 1734  k apply -f pod_e.yaml 
+ 1735  k get po
+ 1736  k exec -it nginx bash
+ 1737  vi pod_v.yaml 
+ 1738  k apply -f pod_v.yaml 
+ 1739  vi pod_v.yaml 
+ 1740  k apply -f pod_v.yaml 
+ 1741  k get po
+ 1742  k exec -it nginx-v bash
+ 1743  history 
+ --------------------------------
+env
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx
+  name: nginx
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    resources: {}
+    env:
+- name: MYENV
+value: "test"
+- name: TESTHOST
+valueFrom:
+configMapKeyRef:
+name: mycm
+key: dbname
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+-----------------------------------------------------------------------
+Assignment:
+106. Create a configmap called myconfigmap with literal value appname=myapp
+107. Verify the configmap we just created has this data
+108. delete the configmap myconfigmap we just created
+
+
+Assignment:
+109. Create a file called config.txt with two values key1=value1 and key2=value2 and verify the file
+110. Create a configmap named keyvalcfgmap and read data from the file config.txt and verify that configmap is created correctly
+111. Create an nginx pod and load environment values from the above configmap keyvalcfgmap and exec into the pod and verify the environment variables and delete the pod
+
+
+Assignment:
+112. Create an env file file.env with var1=val1 and create a configmap envcfgmap from this env file and verify the configmap
+113. Create an nginx pod and load environment values from the above configmap envcfgmap and exec into the pod and verify the environment variables and delete the pod
+
+
+Assignment:
+Create a configmap called cfgvolume with values var1=val1, var2=val2 and create an nginx pod with volume nginx-volume which reads data from this configmap cfgvolume and put it on the path /etc/cfg
+-------------------------------------------------------------------------------------------------------------------
+122. Create a secret mysecret with values user=myuser and password=mypassword
+123. List the secrets in all namespaces
+124. Output the yaml of the secret created above
+125. Create an nginx pod which reads username as the environment variable
+126. Create an nginx pod which loads the secret as environment variables
+
+
+k create secret generic mysecret1 --from-file=abc
+ 1791  k create secret generic mysecret --from-literal=pass=admin
+ 1792  k get secret
+ 1793  vi pod.yaml 
+ 1794  k apply -f pod.yaml 
+ 1795  k get po
+ 1796  k exec -it nginx-v bash
+ 1797  k exec -it nginx bash
+ 1798  vi pod.yaml 
+ 1799  k delete po nginx
+ 1800  k apply -f pod.yaml 
+ 1801  vi pod.yaml 
+ 1802  k apply -f pod.yaml 
+ 1803  k get po
+ 1804  k exec -it nginx bash
+ 1805  vi pod.yaml 
+ 1806  k delete po nginx
+ 1807  k apply -f pod.yaml 
+ 1808  k exec -it nginx bash
+------------------------------------------------------
+job
+-----------
+ k create job myjob --image=busybox --dry-run -o yaml -- /bin/sh -c "sleep 20" > job.yaml
+ 1864  k apply -f job.yaml 
+ 1865  watch kubectl get all
+ 1866  vi job.yaml 
+ 1867  k explain job.spec
+ 1868  watch kubectl get all
+ 1869  k delete job myjob
+ 1870  vi job.yaml 
+ 1871  k apply -f job.yaml 
+ 1872  watch kubectl get all
+ 1873  k delete job myjob
+ 1874  vi job.yaml 
+ 1875  k apply -f job.yaml 
+ 1876  vi job.yaml 
+ 1877  k apply -f job.yaml 
+ 1878  watch kubectl get all
+ 1879  k get po
+ 1880  k get all
+-------------------------------------------------------------
+ Create a job named pi with image perl that runs the command with arguments "perl -Mbignum=bpi -wle 'print bpi(2000)'"
+ 
+ Create a job but ensure that it will be automatically terminated by kubernetes if it takes more than 30 seconds to execute
+ Create the same job, make it run 5 times, one after the other. Verify its status and delete it
+ Create the same job, but make it run 5 parallel times
+----------------------------------------------------------
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  creationTimestamp: null
+  name: mycj
+spec:
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+      name: mycj
+    spec:
+      copletions: 2
+      parallelism: 2
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - /bin/sh
+            - -c
+            - sleep 10
+            image: busybox
+            name: mycj
+            resources: {}
+          restartPolicy: OnFailure
+  schedule: '* * * * *'
+status: {}
+------------------------------------------------------
+resources
+-----------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx
+  name: nginx
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200M
+      requests:
+        cpu: 100m
+        memory: 100M
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+-----------------------------------------
+ k apply -f pod.yaml 
+ 1928  k get po
+ 1929  k get po -o wide
+ 1930  k get no
+ 1931  k cordon kind-worker
+ 1932  k get no
+ 1933  k delete po nginx
+ 1934  k apply -f pod.yaml 
+ 1935  k get po
+ 1936  k describe po nginx
+ 1937  k get po
+ 1938  k uncordon kind-worker
+ 1939  k get po
+ 1940  k get po -o wide
+ 1941  history 
+------------------------------------------------------------------------
+1990  k get po -o wide
+ 1991  k apply -f pod.yaml 
+ 1992  vi pod.yaml 
+ 1993  k apply -f pod.yaml 
+ 1994  vi pod.yaml 
+ 1995  k apply -f pod.yaml 
+ 1996  vi pod.yaml 
+ 1997  k apply -f pod.yaml 
+ 1998  k get po
+ 1999  k get po -o wide
+ 2000  k describe po  nginx1
+ 2001  k get po --show-labels
+ 2002  vi pod.yaml 
+ 2003  k get no --show-labels
+ 2004  k delete po nginx1
+ 2005  vi pod.yaml 
+ 2006  k apply -f pod.yaml 
+ 2007  k get po -o wide
+ 2008  k describe po nginx1
+ 2009  k delete po nginx1
+ 2010  vi pod.yaml 
+ 2011  k get no --show-labels
+ 2012  vi pod.yaml 
+ 2013  k apply -f pod.yaml 
+ 2014  k delete po nginx1
+ 2015  k get po
+ 2016  vi pod.yaml 
+ 2017  k apply -f pod.yaml 
+ 2018  k get po -o wide
+ 2019  k get no --show-labels
+ 2020  vi pod.yaml 
+ 2021  history 
+root@ip-172-31-41-108:~/jobs# 
+
+
+
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx1
+  name: nginx1
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+       - labelSelector:
+           matchExpressions:
+               - key: run
+                 operator: In
+                 values:
+                   - nginx
+         topologyKey: kubernetes.io/hostname
+
+  containers:
+  - image: nginx
+    name: nginx
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200M
+      requests:
+        cpu: 100m
+        memory: 100M
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+------------------------------------------------------------------
+1.	Create a new namespace with the name “test” with the Declarative Approach
+2.	Create a pod named “test-pod” using the image “nginx:stable” with the imperative approach and 
+                 edit this using VI/NANO to change the image to “niginx:stable-perl". You need to save the edited file on Root. 
+                 Delete the Test-Pod and re-create the same with the saved file.
+o	Document the output, if you run the saved file, without deleting
+o	Document the output, if you run the saved file, with “kubectl replace” command, without deleting the Pod.
+3.	Create an Alias of Kubectl as “k” and use “k” command to create the deployment named “presentation” using the image nginx 
+                 with 2 replicas using imperative approach. Use declarative approach to change the replica count to 1, after outputting the Yaml.
+                  Document the Events of Replicaset, after the change.
+4.	Fix the issue with the attached Deployment YAML file. 
+5.	Create a pod named “multi-container” with following images running inside  - NGINX + REDIS + Memcached + Consul.
+                 Ensure to have right ports opened for them viz. NGINX – 80, Redis - 6379, Memcached – 11211, Consul – 8300. 
+                Document the output after running the create command – Use Notepad or VI/Nano to create the YAML
+6.	Create an NGINX pod with label app=web in the “test” namespace. Verify the running status. 
+                Now create a replicaset named “label-rs” with NGINX Pods with label as app=web and mark replicas=3, 
+                 in within the “test” namespace. Document the output (only pod specific) when you describe the replicaset.
+
+
+-------------------------------------------------------------
+https://github.com/rskTech/k8s_material/blob/master/kubernetes_cheatsheet.pdf
+
+--------------------------------------------------------------------------------------
+apiVersion: v1
+kind: deployment
+
+metadata:
+  name: py-web
+  namespace: test
+  labels:
+    tier=webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier=webapp
+  template:
+    metadata:
+      name: py-web
+      namespace: test
+      labels:
+        tier=webapp
+    spec:
+      hostname: py-web-host
+      subdomain: dev
+      containers:
+          name: ctr-py-web
+          image: nginx
+          ports:
+            - containerPort: 80
+              name: port-py-web
+      restartPolicy: Always
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+----------------------------------------------------------------
+cd schedule/
+ 2011  ls
+ 2012  k run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
+ 2013  vi pod.yaml 
+ 2014  k apply -f pod.yaml 
+ 2015  k explain po.spec
+ 2016  vi pod.yaml 
+ 2017  k apply -f pod.yaml 
+ 2018  vi pod.yaml 
+ 2019  k apply -f pod.yaml 
+ 2020  k explain po.spec
+ 2021  vi pod.yaml 
+ 2022  k explain po.spec
+ 2023  k explain po.spec.tolerations
+ 2024  vi pod.yaml 
+ 2025  k explain po.spec.tolerations
+ 2026  k apply -f pod.yaml 
+ 2027  vi pod.yaml 
+ 2028  k describe no kind-worker
+ 2029  vi pod.yaml 
+ 2030  Z
+ 2031  k apply -f pod.yaml 
+ 2032  k get po
+ 2033  k get po -o wide
+ 2034  vi pod.yaml 
+ 2035  k delete po nginx
+ 2036  k cordon kind-worker2
+ 2037  k get no
+ 2038  k apply -f pod.yaml 
+ 2039  k get po
+--------------------------------
+myapp:
+  label: mydeploy
+  image: nginx
+  replicas: 5
+  port: 80
+  targetPort: 80
+  type: NodePort
+
+
+==============================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: {{.Values.myapp.label}}
+  name: {{.Values.myapp.label}}
+spec:
+  replicas: {{.Values.myapp.replicas}}
+  selector:
+    matchLabels:
+      app: {{.Values.myapp.label}}
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{.Values.myapp.label}}
+    spec:
+      containers:
+      - image: {{.Values.myapp.image}}
+        name: {{.Values.myapp.label}}
+        resources: {}
+status: {}
+-------------------------------------------------------------------------------
+1. What does chart.yaml file contains ?
+                  it contians helm chart information such as version, name of chart, application and application 
+2. How to insert a release name into YAML template ?
+3. How to test the template rendering in Helm without installing anything ?
+4. How does the basic structure of Helm Chart looks like ?
+5. What is the command to create a Helm chart ?
+6. How to Inspect a values file in Helm Chart ?
+7. Which default file is used to pass the values in Helm Chart ?
+8. How to show all the available charts from Artifact Hub ?
+     helm search hub
+9. How to show "wordpress" charts from local repository ?
+      helm search repo wordpress
+10. How to Install or upgrade helm ?
+11. How to Check if there is any error in the Helm Chart ?
+13. Which Function can be used to iterate over the Line in a File ?
+15. Which is having the higher precedence between --set option and default values.yaml file ?
+17. Which function can be used to quote the Strings ?
+18. Which function can be used to repeat the String a given number of times ?
+19. How to make sure a default value is used in the template in case the given value is Omitted ?
+20. Which file is used to pass all static chart values ?
+21. Which function can be used to lookup resources in a running cluster ?
+23. Which of the Helm commands does not contact Kubernetes API ?
+24. Which function takes a list of values and returns the first non-empty one ?
+25. Which function can be used to remove white space from both sides of the string ?
+26. What will be the output of below helm function ?
+repeat 3 "hello"
+27. How to download and look at the files for a published chart without installing it ?
+------------------------------------------------------------------------------------------------------------
+
+8.	Create a NGINX pod and expose this at Port 80 (all using imperative approach). 
+                 Document the output if you do a curl on expose output. Was there any Service created?
+9.	Create a postgres image using 3 ENV Variables 
+               (POSTGRES_USER=postgres, POSTGRES_PASSWORD=postgres, POSTGRES_DB=postgres),
+              using Dockerfile approach. Create your repository on Docker Hub and name it <docker-yourAccentureID>. 
+             Now build the docker with a tag Postgres_DB prefixed with your docker repo (<yourrepo/NGINX>). 
+               Run the docker with imperative approach and create to docker
+                 (one with default Env variables and 2nd with a new password i.e. password123) on port 5432.
+10.	Use “exec” method to get inside the containers, created in Q#9 and do the following:
+o	List the folder
+o	Change the user to postgres
+o	Use psql -h and -W command to connect to Postgres DB
+o	document the output of \conninfo
+11.	Use Q.9 but this time have the same set of Environment variables available in the Configmap name config-env. Use Imperative and declarative approach to build the ConfigMap 
+
+----------------------------------------------------------------------------------------------
+helm repo add bitnami https://charts.bitnami.com/bitnami
+ 2008  helm serach repo bitnami
+ 2009  helm search repo bitnami
+ 2010  helm pull --untar bitnami/wordpress
+ 2011  ls
+ 2012  cd wordpress/
+ 2013  ls
+ 2014  vi values.
+ 2015  vi values.yaml 
+ 2016  ls
+ 2017  cd templates/
+ 2018  ls
+ 2019  cd ..
+ 2020  helm list
+ 2021  helm install wordpress wordpress/
+ 2022  k get all
+ 2023  kubectl get svc --namespace default -w wordpress
+ 2024  k get no -o wide
+ 2025  history 
+---------------------------------------------------
+
+
+
+
+
+
+3. Let us BUILD A MONITORING SYSTEM (Full blown project). You might have heard about monitoring system viz. Datadog, Prometheus, Elastic Beat+ELK etc. We will not build that grand, but we will make an attempt to build a POC in similar fashion. Here are the Solution Steps and Tips to develop the same.
+a.	Create a BASH Script (say monitor.sh) that will get the System parameter (say Memory Info or CPU Info) from the system alongside 
+                 other details like timestamp, hostname etc. It will read the parameter and create a log file every second.
+i.	Put a name of Logfile as SystemDate+time.log, to ensure that, every logfile is unique and also it will tell when that log file was created
+ii.	Ensure that new log file with new name is created as soon as file size of existing log file reaches a limit (let us define a limit MAXLOGFILESIZE=1000) i.e. every log file will be only 1000B
+iii.	Test the script locally
+b.	Create a BASH Script (say alarm.sh) that will read the System parameter (say Memory Info or CPU Info) from the log files available on the path. It will read the parameter and need to raise an alarm, if Acceptable value breaches
+i.	Define an Acceptable value of system parameter (e.g. AVAILABLEMEMORY=30) i.e. system should be running at this available memory
+ii.	To raise an alarm, create an AlarmBell.txt file and keep dumping the records into this file, every time a value is found to be lesser than this during log file read
+iii.	Test the script locally
+c.	Create a BASH Script (say file-del.sh) that will continue to delete the older log files in the system, just to keep it clean. 
+i.	Ensure to delete only those files whose size < MAXLOGFILESIZE. This is to ensure that, current log-file being written is not deleted
+ii.	Dump the name of files, you are deleting a text file say deleteLog.txt, before you delete
+iii.	Test the script locally
+d.	Create your own docker Ubuntu images 
+i.	<your-repo>/monitor (corresponding to step #a)
+ii.	<your-repo>/alarm (corresponding to step #b) 
+iii.	<your-repo>/deletelog (corresponding to step #c)
+e.	Create an NGINX Pod 
+i.	Extend NGINX POD to attach a side-car container with image=<your-repo>/monitor. Create a “hostpath” PV (‘/tmp/data’) and do a volume Mount at a mount path of “./logs” 
+ii.	If you are using Minikube, mount your local folder against the hostpath
+iii.	Validate if you are getting the logs created at your local folder
+f.	Create a CronJob “Alarm” with image=<your-repo>/alarm and scheduled to run every 1 min. Use the same PVC as used in Step #e, as well as same mount Path etc.
+i.	Run this cronjob while Nginx Pod is also running and check, if “alarmBell.txt” had been created and updated with records. 
+g.	Create a CronJob “del-log” with <your-repo>/deletelog and scheduled to run every 5 min. Use the same PVC as used in Step #e, as well as same mount Path etc.
+i.	Run this cronjob while Nginx Pod as well as Alarm cronjob is also running and check, if “deleteLog.txt” had been created and updated with records.
+h.	Here you go, YOU BUILT YOUR OWN MINIATURE MONITORING SYSTEM
+1
+
+------------------------------------------------------------------------
+9.	Create a postgres image using 3 ENV Variables (POSTGRES_USER=postgres, POSTGRES_PASSWORD=postgres, POSTGRES_DB=postgres), using Dockerfile approach. Create your repository on Docker Hub and name it <docker-yourAccentureID>. Now build the docker with a tag Postgres_DB prefixed with your docker repo (<yourrepo/NGINX>). Run the docker with imperative approach and create to docker (one with default Env variables and 2nd with a new password i.e. password123) on port 5432.
+10.	Use “exec” method to get inside the containers, created in Q#9 and do the following:
+o	List the folder
+o	Change the user to postgres
+o	Use psql -h and -W command to connect to Postgres DB
+o	document the output of \conninfo
+------------------------------------------------------------
+git clone git@github.com:rskTech/pwc16august.git
+ 2052  touch file1
+ 2053  git add file1
+ 2054  k run nginx --image=nginx --requests="cpu=0.1,memory=100M" --limits="cpu=0.2,memory=200M" --dry-run=client -o yaml > pod.y
+aml
+ 2055  cd pwc16august/
+ 2056  touch file1
+ 2057  git add file1
+ 2058  git commit -m "file1 is committed"
+ 2059  git push
+ 2060  cat /root/.ssh/id_rsa.pub 
+ 2061  ls
+ 2062  touch file2
+ 2063  git add file2
+ 2064  git commit -m "file2 is committed"
+ 2065  git push
+ 2066  git log
+ 2067  history 
+-----------------------------------------------------------------
+
+mkdir gitpractice/
+ 2262  cd gitpractice
+ 2263  ls
+ 2264  git init myapp
+ 2265  ls
+ 2266  ls -al
+ 2267  cd myapp/
+ 2268  ls -al
+ 2269  git status
+after this create your own repo in git hub
+ 2276  clear
+ 2277  git branch
+ 2278  git remote add origin https://github.com/ayesha278/pwc16august.git
+ 2279  git checkout -b main
+ 2280  git status
+ 2281  git branch
+ 2282  git push -u origin main
+ 2283  ssh-keygen
+ 2284  cat /root/.ssh/id_rsa.pub
+ 2285  git clone git@github.com:ayesha278/pwc16august.git
+ 2286  git status
+ 2287  ls
+ 2288  cd pwc16august/
+ 2289  ls
+ 2290  git status
+ 2291  touch file1
+ 2292  git status
+ 2293  git add file1
+ 2294  git status
+ 2296  git commite -m "file1 is committed"
+ 2297  git commit -m "file1 is committed"
+ 2298  git status
+ 2299  git push
+ 2300  touch file2
+ 2301  git status
+ 2302  git add file2
+ 2303  git status
+ 2304  git commit -m "file2 is committed"
+ 2305  git status
+ 2306  git push
+
+
+
+ 
